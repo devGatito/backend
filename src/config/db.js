@@ -39,16 +39,20 @@ export async function getConnection() {
     if (!pool.connected) {
       await poolConnect;
     }
-    
+
+    // ✅ Log para saber a qué base de datos te estás conectando
+    const dbCheck = await pool.request().query('SELECT DB_NAME() AS dbname');
+    console.log('📌 Base de datos conectada:', dbCheck.recordset[0].dbname);
+
     const testResult = await pool.request().query('SELECT 1 AS test');
     if (!testResult.recordset[0].test === 1) {
       throw new Error('La conexión no está respondiendo correctamente');
     }
-    
+
     return pool;
   } catch (err) {
     console.error('Error al obtener conexión:', err);
-    
+
     try {
       await pool.close();
       await pool.connect();
